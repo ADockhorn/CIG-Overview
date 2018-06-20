@@ -582,4 +582,190 @@ In case you have any ideas how to improve this guide please let us know by writi
 	\caption{One Step Q-Learning}
 \end{algorithm}
 
+\section{Simulation Based Search Algorithms}
+
+
+\subsection{Flat Monte Carlo}
+	
+	\vskip1em
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{Initial state $s_t$ and MDP of the environment}
+		Initialize an array $Q(s_t,a) = 0$, for all $a\in A$\;
+		\;
+		\ForEach{$a \in A$}{
+			Simulate $k$ Episodes using random policy\;
+			$Q(s_t,a) \leftarrow$ mean/expected return of simulated episodes\;
+		}
+		\KwOut{$\argmax_a Q(s_t,a)$}    
+		\caption{Flat Monte Carlo}
+	\end{algorithm}
+
+\subsection{Flat Upper Confidence Bounds (UCB)}
+
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{any UCB variant}
+		Initialize arrays $Q(s_t,a) = 0,~ N(s) = 0, N(s,a)=0$, $\forall s\in S, \forall a\in A$\;
+		Initialize an empty list of \textit{Returns(s)} $\forall s \in S$\;
+		\;
+		\For{$k$ iterations}{
+			Select first action using UCB\;
+			Simulate episode using random policy\;
+			Update visit counts $N(s), N(s,a)$\;
+			Returns(s).append(return of episode k)\;
+			$Q(s_t,a) \leftarrow \textit{mean}(\textit{Returns}(s))$;
+		}
+		\KwOut{$\argmax_a Q(s_t,a)$}    
+		\caption{Flat UCB}
+	\end{algorithm}
+
+
+\subsection{Monte Carlo Tree Search (MCTS)}
+
+	\begin{minipage}[b]{0.55\textwidth}
+		\begin{itemize}
+			\item \textbf{1. Tree Selection:} \\[0.5em] Following the \textbf{tree policy} (i.e. UCB1), navigate the tree until reaching a node with at least one child state that was not explored yet.
+			\vskip4em
+			\item \textbf{2. Expansion:} \\[0.5em] Add a new node in the tree, as a child of the node reached in the tree selection step.
+			 \begin{itemize}
+				\item this node resembles an action
+			\end{itemize}
+			\vskip4em
+			\item \textbf{3. Monte Carlo Simulation/Rollout:} \\[1em] Following the \textbf{default policy}, advance the state until a terminal state or a pre-defined maximum number of steps. 
+			 \begin{itemize}
+				\item calculate the return of this episode.
+			\end{itemize}
+			\vskip6em
+			\item \textbf{4. Back-propagation:} \\[1em] Update the values of $Q(s,a)$, $N(s)$ and $N(s,a)$ of the nodes visited in the tree during steps 1 and 2.
+			\begin{itemize}
+				\item Values of nodes visited during the simulation will not be updated.
+			\end{itemize}
+			\vspace{1em}
+		\end{itemize}
+	\end{minipage}\hspace{0.15\textwidth}\begin{minipage}[b]{0.3\textwidth}
+		\includegraphics[width=1.0\textwidth]{pics/selection.png}
+		
+		\includegraphics[width=1.0\textwidth]{pics/expansion.png}
+		
+		\includegraphics[width=1.0\textwidth]{pics/simulation.png}
+		
+		\includegraphics[width=1.0\textwidth]{pics/backpropagation.png}
+	\end{minipage}
+	
+\subsection{Evolutionary Algorithms (EA)}
+	
+	\begin{tabular}{C{0.1\textwidth}p{0.3\textwidth}p{0.6\textwidth}}
+		\toprule
+		Symbol & Name &  Description \\
+		\midrule
+		$i$ & individual/solution & a possible solution for the problem at hand\\
+		$P$ & population of individuals & set of possible solutions\\
+		$t$ & time-step or generation & \\
+		$P_t, P(t)$ & population at time $t$ & \\
+		$\mu, N$ & (number of) individuals in $P$ & equal to $\vert P \vert$ \\ 
+		$M$ & mating pool & individuals selected for genetic operators\\
+		$\lambda$ & (number of) inidividuals in $M$ & set of children\\
+		$f_i$ & fitness of individual $i$ & scoring the fitness of an individual based on an objective function\\
+		$p_i$ & selection probability of individual $i$ & probability of an individual being selected for the mating pool\\
+		\bottomrule
+	\end{tabular}
+	\vskip3em
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{Initial Population $P(t)$}
+		$t \leftarrow 0$\;
+		\;
+		\Repeat{termination condition}{
+			Select individuals for genetic operators: $M(t) \leftarrow \textit{selection}(P(t))$\;
+			Apply Crossover: $\;\!M'(t) \leftarrow \textit{crossover}(M(t))$\;
+			Apply Mutation: $M''(t) \leftarrow \textit{mutation}(M'(t))$\;
+			Update $P(t)$: $~\;P(t+1) \leftarrow \textit{reproduction\_scheme}(P(t) \cup M''(t))$\;
+			$t \leftarrow t+1$\;
+		}
+		\KwOut{Final Population $P(t)$}    
+		\caption{General Evolutionary Algorithm}
+	\end{algorithm}
+	
+
+\subsection{Rolling Horizon (RH)}
+
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{current state $s_t$, horizon h}
+		\;
+		$E \leftarrow$ simulate a random episode starting at $s_t$ till timestep $t+h$\;
+		\;
+		\Repeat{time is over}{
+			$E' \leftarrow$ simulate a random episode starting at $s_t$ till timestep $t+h$\;
+			\If{Return of $E' >$ Return of $E$}{
+				$E \leftarrow E'$\;
+			}
+		}
+		\;
+		\KwOut{First action of E}    
+		\caption{Rolling Horizon Random Search}
+	\end{algorithm}
+	\vskip2em
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{current state $s_t$, horizon h}
+		\;
+		$P \leftarrow$ population of random episodes starting at $s_t$ till timestep $t+h$\;
+		\;
+		\Repeat{time is over}{
+			$M \leftarrow$ select individuals from P for genetic operators \;
+			$M' \leftarrow$ apply crossover to $M$\;
+			$M'' \leftarrow$ apply mutation to $M'$\;
+			$P \leftarrow$ apply reproduction scheme to $(P \cup M'')$\;
+		}
+		\;
+		\KwOut{First action of the episode with the highest return in P}    
+		\caption{Rolling Horizon Evolutionary Algorithm (RHEA)}
+	\end{algorithm}
+
+\section{Multi Objective Optimization}
+
+
+\subsection{General Notation}
+
+	\begin{tabular}{C{0.1\textwidth}p{0.3\textwidth}p{0.6\textwidth}}
+		\toprule
+		Symbol & Name &  Description \\
+		\midrule
+		$S$ & search space & the space of all possible solutions\\
+		$O$ & objective space & $O = \lbrace \vec{f}(x) \in \mathbb{R}^m \vert x \in S \rbrace$\\
+		$\vec{f}(x)$ & objective vector & all objective values for individual x \\
+		$f_i$ & objective function & assigns an objective value to each solution\\
+		$f_i(x)$ & i-th objective value of x& \\
+		$r_i$ & rank of solution i & see the lecture for ranking methods \\
+		$d_i$ & (crowding) distance of i & specifically used in NSGA-II \\
+		$\Omega_i(x)$ & cone domination & cone-dominating version of objective function $f_i$\\
+		$C(A, B)$ & convergence metric & compare the convergence between two non-dominated set of points $A$ and $B$\\
+		$HV(A)$ & hyper-volume of $A$ & calculate the hyper-volume of a non-dominated set of solutions $A$\\
+		$MHV(i)$ & marginal hyper volume of individual $i$ & $MHV(i) = HV(entire~Set) - HV(set~without~i)$\\
+		
+		\bottomrule
+	\end{tabular}
+
+\subsection{NSGA-II Algorithm}
+
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{Individuals of Population $P(t)$ and the Mating Pool $M(t)$}
+		Fronts $(F_1, F_2, \cdots) \leftarrow$ non-dominated sorting of $P(t) \cap M(t)$\;
+		Set $P(t+1) = \emptyset, \quad i=1, \quad N = P(t)$\;
+		\vskip1.0em
+		\Repeat{$\vert P(t+1)\vert + \vert F_i\vert \leq N$}{
+			$P(t+1) \leftarrow P(t+1)\cap F_i$\;
+			$i \leftarrow i+1$\;
+		}
+		\vskip1.0em
+		Sort all individuals in $F_i$ by their crowding distance\;
+		$P(t+1) \leftarrow P(t+1)~\cap $ $\lbrace$first $N-\vert P(t+1)\vert$ elements in $F_i\rbrace$\;
+		\vskip1.0em
+		\KwOut{Next Population $P(t+1)$}    
+		\caption{NSGA-II Algorithm}
+	\end{algorithm}
+
 \end{document}
