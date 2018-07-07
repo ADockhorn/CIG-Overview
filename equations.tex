@@ -458,7 +458,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 		\ForEach{$(s,a)$ in the episode}{
 			$G \leftarrow$ return following the first occurence of $(s,a)$\;
 			$\textit{Returns}(s,a).append(G)$ \;
-			$Q(s,a) \leftarrow \argmax_a Q(s,a)$ \;
+			$Q(s,a) \leftarrow \max_a Q(s,a)$ \;
 		}
 		\ForEach{$s$ in the episode}{
 			$\pi(s) \leftarrow \argmax_a Q(s,a)$\;
@@ -488,8 +488,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 			\begin{split} 
 				V(s) &\leftarrow \frac{1}{k} \sum_{i=1}^k G_s(i) \\
 				&\leftarrow \frac{1}{k} \left( G_s(k) + \sum_{i=1}^{k-1} G_s(i) \right) \\[0.4em]
-				&\leftarrow \frac{1}{k} (G_s(k) + (k-1)~ G_s(k-1))\\
-				&\leftarrow G_s(k-1) + \frac{1}{k} (G_s(k) - G_s(k-1))\\
+				&\leftarrow \frac{1}{k} (G_s(k) + (k-1)~ V(s))\\
 				&\leftarrow V(s) + \frac{1}{k} (G_s(k) - V(s))\\
 			\end{split}
 			\label{eq:incremental_monte_carlo}
@@ -606,15 +605,15 @@ In case you have any ideas how to improve this guide please let us know by writi
 	\begin{algorithm}[H]
 		\DontPrintSemicolon
 		\KwIn{any UCB variant}
-		Initialize arrays $Q(s_t,a) = 0,~ N(s) = 0, N(s,a)=0$, $\forall s\in S, \forall a\in A$\;
-		Initialize an empty list of \textit{Returns(s)} $\forall s \in S$\;
+		Initialize arrays $Q(s_t,a) = 0,~ N(s_t) = 0, N(s_t,a)=0$, $\forall a\in A, \forall a\in A$\;
+		Initialize an empty list of \textit{Returns($s_t,a$)} $\forall a \in A$\;
 		\;
 		\For{$k$ iterations}{
-			Select first action using UCB\;
+			Select first action $a$ of the simulation using UCB\;
 			Simulate episode using random policy\;
-			Update visit counts $N(s), N(s,a)$\;
-			Returns(s).append(return of episode k)\;
-			$Q(s_t,a) \leftarrow \textit{mean}(\textit{Returns}(s))$;
+			Update visit counts $N(s_t) \leftarrow k\quad$ and  $\quad N(s_t, a) \leftarrow N(s_t, a) + 1$\;
+			Returns($s_t, a$).append(return of episode k)\;
+			$Q(s_t,a) \leftarrow \textit{mean}(\textit{Returns}(s_t, a))$;
 		}
 		\KwOut{$\argmax_a Q(s_t,a)$}    
 		\caption{Flat UCB}
