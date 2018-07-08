@@ -751,20 +751,41 @@ In case you have any ideas how to improve this guide please let us know by writi
 
 	\begin{algorithm}[H]
 		\DontPrintSemicolon
-		\KwIn{Individuals of Population $P(t)$ and the Mating Pool $M(t)$}
-		Fronts $(F_1, F_2, \cdots) \leftarrow$ non-dominated sorting of $P(t) \cap M(t)$\;
-		Set $P(t+1) = \emptyset, \quad i=1, \quad N = P(t)$\;
+		\KwIn{A single front $F$ with $N$ individuals}
+		Initialize distances for all individuals: $d_i = 0, \quad \forall i \in F$\;
+		\vskip0.5em
+		\ForEach{each objective $m$}{
+			Sort individuals in $F$ regarding their objective values $f_m(i)$\;
+			Assign $d_i \leftarrow \infty$ to the elements with index 1 and $N$ in the \mbox{sorted list} $\lbrack$the elements with lowest or highest value in $f_m(i)\rbrack$ \;
+			\vskip0.5em
+			$f_m^{min}, f_m^{max} \leftarrow$ minimum and maximum observed value for objective value $f_m(i)$ for individuals in $F$ \;
+			\vskip0.5em
+			\For{all individuals $i$ with index $i_{idx}=2$ to $N-1$}{
+				$d_i \leftarrow d_i + \big\vert\frac{f_m(i_{idx+1}) - f_m(i_{idx-1})}{f_m^{max} - f_m^{min}}\big\vert$\;
+			}
+		}
+		\KwOut{Crowding Distance $d(i), \quad \forall i \in F$}    
+		\caption{Crowding Distance Computation}
+	\end{algorithm}
+\vskip2em
+
+	\begin{algorithm}[H]
+		\DontPrintSemicolon
+		\KwIn{Individuals of Population $P(t)$ and the Mating Pool $M''(t)$}
+		Fronts $(F_1, F_2, \cdots) \leftarrow$ non-dominated sorting of $P(t) \cup M''(t)$\;
+		Set $P(t+1) = \emptyset, \quad i=1, \quad N = \vert P(t)\vert$\;
 		\vskip1.0em
 		\Repeat{$\vert P(t+1)\vert + \vert F_i\vert \leq N$}{
-			$P(t+1) \leftarrow P(t+1)\cap F_i$\;
+			$P(t+1) \leftarrow P(t+1)\cup F_i$\;
 			$i \leftarrow i+1$\;
 		}
 		\vskip1.0em
 		Sort all individuals in $F_i$ by their crowding distance\;
-		$P(t+1) \leftarrow P(t+1)~\cap $ $\lbrace$first $N-\vert P(t+1)\vert$ elements in $F_i\rbrace$\;
+		$P(t+1) \leftarrow P(t+1)~\cup $ $\lbrace$first $N-\vert P(t+1)\vert$ elements in $F_i\rbrace$\;
 		\vskip1.0em
 		\KwOut{Next Population $P(t+1)$}    
 		\caption{NSGA-II Algorithm}
 	\end{algorithm}
 
+	
 \end{document}
