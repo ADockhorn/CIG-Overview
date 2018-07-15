@@ -4,7 +4,7 @@
 \usepackage{tikzconfig}
 
 
-
+\newtheorem{definition}{Definition}
 
 \title{Computational Intelligence in Games\\ - Cheat Sheet -}
 \author{Alexander Dockhorn}
@@ -28,6 +28,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 \href{mailto:dockhorn@ovgu.de}{dockhorn@ovgu.de}.
 
 \end{abstract}
+\pagebreak
 \tableofcontents
 
 \newpage
@@ -119,6 +120,20 @@ In case you have any ideas how to improve this guide please let us know by writi
 	\end{equation}
 \end{equationfloat}
 
+\begin{definition}[Strategy profile]
+	A strategy profile is the set of strategies taken by agents to play in one game. Assume a strategy profile with $n$ strategies $S = (s_1, \dots, s_n)$. Each player gets one of them.
+	\vspace{1em}
+	All strategies except $s_i$ are denoted by $s_{-i} = (s_1, \dots, s_{i-1}, s_{i+1}, \dots, s_n)$
+\end{definition}
+\vspace{1em}
+
+\begin{definition}[Best Response:]  $s_i$ is a best response to $s_{-i}$ if and only if
+	$$\pi_{s_i, s_{-i}} \geq \pi_{s', s_{-i}} \quad \forall s' \in S$$
+\end{definition}	
+\vspace{1em}
+
+\begin{definition}[Nash Equilibrium:] The strategy profile $S = (s_1, \dots, s_n)$ is a Nash Equilibrium if and only if for each player $i$, his strategy $s_i$ is a best response to $s_{-i}$\\
+\end{definition}
 
 \subsection{Evolutionary Game Theory}
 
@@ -236,10 +251,11 @@ In case you have any ideas how to improve this guide please let us know by writi
 	\end{equation}
 \end{equationfloat}
 
-\filbreak\section{Reinforcement Learning}
+\begin{absolutelynopagebreak}
+	\section{Reinforcement Learning}
+\end{absolutelynopagebreak}
 
 \subsection{General Notation}
-
 \begin{tabular}{C{0.1\textwidth}p{0.3\textwidth}p{0.6\textwidth}}
 	\toprule
 	Symbol & Name &  Description \\
@@ -262,7 +278,6 @@ In case you have any ideas how to improve this guide please let us know by writi
 	\bottomrule
 \end{tabular}
 
-\vskip1em 
 
 \begin{equationfloat}[!ht]
 	\caption{Simple (undiscounted) Return, $\quad G_t$}
@@ -440,7 +455,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 		}
 	}
 	\KwOut{$V \approx v_\pi$}    
-	\caption{Monte Carlo Method $v(s,a)$}
+	\caption{Monte Carlo Method $v(s)$}
 \end{algorithm} 
 
 \vskip0.5em
@@ -448,7 +463,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 \begin{algorithm}[H]
 	\DontPrintSemicolon
 	\KwIn{policy $\pi$ to be evaluated}
-	Initialize an array $V(s) = 0$, for all $s\in S$\;
+	Initialize an array $Q(s,a) = 0$, for all $s\in S, a\in A$\;
 	Initialize an empty list $\textit{Returns}(s,a)$, for all $s\in S$ and $a\in A$\;
 	
 	\;
@@ -502,7 +517,6 @@ In case you have any ideas how to improve this guide please let us know by writi
 	\DontPrintSemicolon
 	\KwIn{policy $\pi$ to be evaluated}
 	Initialize an array $V(s) = 0$, for all $s\in S$\linebreak
-	Initialize an empty list $\textit{Returns}(s)$, for all $s\in S$\linebreak
 	\linebreak
 	\While{\textit{true}}{
 		Generate an episode using $\pi$ \linebreak
@@ -512,7 +526,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 		}
 	}
 	\KwOut{$V \approx v_\pi$}    
-	\caption{Constant-$\alpha$ Monte Carlo Method $v(s,a)$}
+	\caption{Constant-$\alpha$ Monte Carlo Method $v(s)$}
 \end{algorithm} 
 
 \newpage
@@ -775,7 +789,7 @@ In case you have any ideas how to improve this guide please let us know by writi
 		Fronts $(F_1, F_2, \cdots) \leftarrow$ non-dominated sorting of $P(t) \cup M''(t)$\;
 		Set $P(t+1) = \emptyset, \quad i=1, \quad N = \vert P(t)\vert$\;
 		\vskip1.0em
-		\Repeat{$\vert P(t+1)\vert + \vert F_i\vert \leq N$}{
+		\Repeat{$\vert P(t+1)\vert + \vert F_i\vert > N$}{
 			$P(t+1) \leftarrow P(t+1)\cup F_i$\;
 			$i \leftarrow i+1$\;
 		}

@@ -46,7 +46,13 @@
 
 %defining the pagebreak behavior
 \usepackage{titlesec}
-\newcommand{\sectionbreak}{\pagebreak}
+\newcommand{\sectionbreak}{\pagebreak[3]}
+
+\newenvironment{absolutelynopagebreak}
+{\par\nobreak\vfil\penalty0\vfilneg
+	\vtop\bgroup}
+{\par\xdef\tpd{\the\prevdepth}\egroup
+	\prevdepth=\tpd}
 
 %references to equations and algorithms
 \usepackage{hyperref}
